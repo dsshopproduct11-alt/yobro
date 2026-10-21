@@ -2,6 +2,9 @@ name: Build NoEyeOS ISO
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - main
 
 jobs:
   build:
