@@ -8,38 +8,106 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 120
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Install build dependencies
+      - name: Unpack NoEyeOS kit
         run: |
-          sudo apt-get update
-          sudo apt-get install -y live-build imagemagick debian-archive-keyring
+          base64 -d <<'B64' | tar xz
+          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
+          B64
+          ls -la
 
-      - name: Build ISO
+      - name: Free disk space
         run: |
-          if [ ! -f build.sh ]; then
-            echo "build.sh was not found in the repository root."
-            echo "Please add the NoEyeOS build files to the repository before running this workflow."
-            exit 1
-          fi
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL
+          docker image prune -af
+          df -h /
+
+      - name: Build ISO in Debian trixie container
+        run: |
           chmod +x build.sh
-          ./build.sh
+          docker run --privileged -v "$PWD":/k -w /k debian:trixie bash -c \
+            "apt-get update && apt-get install -y live-build imagemagick debian-archive-keyring && ./build.sh"
 
-      - name: Verify and checksum ISO
+      - name: Checksum
         run: |
-          shopt -s nullglob
-          isos=( *.iso )
-          if [ ${#isos[@]} -eq 0 ]; then
-            echo "No ISO file was produced."
-            exit 1
-          fi
-          sha256sum "${isos[@]}" | tee SHA256SUMS
+          sudo chown -R "$USER" . || true
+          ls -lh *.iso
+          sha256sum *.iso | tee SHA256SUMS
 
-      - name: Upload ISO artifact
-        uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v4
         with:
-          name: noeyeos-iso
+          name: noeyeos-0.5-iso
           path: |
             *.iso
             SHA256SUMS
