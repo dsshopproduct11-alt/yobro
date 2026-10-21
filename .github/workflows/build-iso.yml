@@ -1,0 +1,47 @@
+name: Build NoEyeOS ISO
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y live-build imagemagick debian-archive-keyring
+
+      - name: Build ISO
+        run: |
+          if [ ! -f build.sh ]; then
+            echo "build.sh was not found in the repository root."
+            echo "Please add the NoEyeOS build files to the repository before running this workflow."
+            exit 1
+          fi
+          chmod +x build.sh
+          ./build.sh
+
+      - name: Verify and checksum ISO
+        run: |
+          shopt -s nullglob
+          isos=( *.iso )
+          if [ ${#isos[@]} -eq 0 ]; then
+            echo "No ISO file was produced."
+            exit 1
+          fi
+          sha256sum "${isos[@]}" | tee SHA256SUMS
+
+      - name: Upload ISO artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: noeyeos-iso
+          path: |
+            *.iso
+            SHA256SUMS
+          compression-level: 0
+          retention-days: 7
