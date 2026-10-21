@@ -99,6 +99,30 @@ jobs:
           docker run --privileged -v "$PWD":/k -w /k debian:trixie bash -c \
             "apt-get update && apt-get install -y live-build imagemagick debian-archive-keyring && ./build.sh"
 
+      - name: Diagnose ISO boot structure
+        if: success()
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y xorriso
+          shopt -s nullglob
+          isos=( *.iso )
+          if [ "${#isos[@]}" -ne 1 ]; then
+            echo "Expected exactly one ISO; found ${#isos[@]}"
+            ls -lh *.iso || true
+            exit 1
+          fi
+          iso="${isos[0]}"
+          echo "=== ISO size and type ==="
+          ls -lh "$iso"
+          file "$iso"
+          echo "=== El Torito BIOS/UEFI boot entries ==="
+          xorriso -indev "$iso" -report_el_torito as_mkisofs
+          echo "=== Important boot files ==="
+          xorriso -indev "$iso" -find / -type f -exec echo 2>&1 | grep -Ei '(/live/|vmlinuz|initrd|grub|isolinux|efi/boot|boot.catalog)' || true
+          echo "=== ISO integrity listing ==="
+          xorriso -indev "$iso" -toc
+          echo "If no boot entry or no kernel/initrd appears above, the ISO build is not bootable."
+          
       - name: Checksum
         run: |
           sudo chown -R "$USER" . || true
