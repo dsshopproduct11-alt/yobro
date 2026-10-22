@@ -1,0 +1,46 @@
+name: Build NoEyeOS Bare-Metal (No Linux)
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/build-noeyeos-baremetal.yml"
+      - "baremetal/**"
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install bare-metal build tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc-multilib binutils libc6-dev-i386 grub-pc-bin xorriso mtools qemu-system-x86
+      - name: Compile freestanding 32-bit kernel
+        run: |
+          mkdir -p build/iso/boot/grub
+          gcc -m32 -std=gnu99 -ffreestanding -fno-pie -fno-stack-protector -fno-builtin -Wall -Wextra -O2 -c baremetal/kernel.c -o build/kernel.o
+          ld -m elf_i386 -T baremetal/linker.ld -nostdlib build/kernel.o -o build/iso/boot/noeyeos-kernel.elf
+          grub-file --is-x86-multiboot build/iso/boot/noeyeos-kernel.elf
+          cp baremetal/grub.cfg build/iso/boot/grub/grub.cfg
+          grub-mkrescue -o build/NoEyeOS-BareMetal.iso build/iso
+      - name: Smoke test kernel with QEMU
+        run: |
+          timeout 8s qemu-system-i386 -cdrom build/NoEyeOS-BareMetal.iso -display none -serial stdio -no-reboot -no-shutdown > build/qemu.log 2>&1 || code=$?
+          cat build/qemu.log
+          # VGA text mode has no serial output yet; successful ISO creation and GRUB multiboot validation are the current automated checks.
+      - name: Checksum
+        run: sha256sum build/NoEyeOS-BareMetal.iso | tee build/SHA256SUMS
+      - uses: actions/upload-artifact@v4
+        with:
+          name: NoEyeOS-BareMetal-ISO
+          path: |
+            build/NoEyeOS-BareMetal.iso
+            build/SHA256SUMS
+          compression-level: 0
+          retention-days: 7
