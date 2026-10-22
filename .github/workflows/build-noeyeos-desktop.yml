@@ -1,0 +1,59 @@
+name: Build NoEyeOS Desktop ISO
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/build-noeyeos-desktop.yml"
+      - "noeyeos-desktop/**"
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build Debian live desktop ISO
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y live-build debootstrap xorriso squashfs-tools
+          mkdir -p noeyeos-desktop/config/package-lists
+          mkdir -p noeyeos-desktop/config/hooks/live
+          cd noeyeos-desktop
+          lb config \
+            --distribution trixie \
+            --architectures amd64 \
+            --binary-images iso-hybrid \
+            --archive-areas "main contrib non-free-firmware" \
+            --debian-installer live \
+            --debian-installer-gui true \
+            --bootappend-live "boot=live components quiet splash" \
+            --iso-application "NoEyeOS" \
+            --iso-volume "NOEYEOS" \
+            --bootloader grub-efi
+          sudo lb build
+
+      - name: Validate ISO
+        run: |
+          set -e
+          shopt -s nullglob
+          files=(noeyeos-desktop/*.iso)
+          test "${#files[@]}" -ge 1
+          ls -lh "${files[@]}"
+          file "${files[0]}"
+          xorriso -indev "${files[0]}" -report_el_torito as_mkisofs
+          sha256sum "${files[@]}" | tee noeyeos-desktop/SHA256SUMS
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: NoEyeOS-desktop-live-ISO
+          path: |
+            noeyeos-desktop/*.iso
+            noeyeos-desktop/SHA256SUMS
+          compression-level: 0
+          retention-days: 7
