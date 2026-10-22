@@ -18,6 +18,7 @@ firmware-realtek
 firmware-atheros
 firmware-brcm80211
 calamares
+calamares-settings-debian
 sudo
 xorg
 xserver-xorg-video-all
