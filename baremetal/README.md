@@ -1,20 +1,18 @@
-# NoEyeOS Bare-Metal (No Linux)
+# NoEyeOS Bare-Metal 0.4
 
-This is a separate, ultra-small, freestanding x86 OS prototype. It does **not** use Linux or a Linux distribution. It compiles a tiny C kernel and boots it using GRUB Multiboot.
+A tiny freestanding 32-bit x86 kernel with a monochrome text-mode interface inspired by the supplied NoEyeOS mockup. It is not based on Linux.
 
-## Build an ISO
-1. Open GitHub Actions.
-2. Run **Build NoEyeOS Bare-Metal (No Linux)**.
-3. Download the `NoEyeOS-BareMetal-ISO` artifact from the completed run.
+## Build ISO
+1. Open GitHub Actions and run **Build NoEyeOS Bare-Metal (No Linux)**.
+2. Download the `NoEyeOS-BareMetal-ISO` artifact from the completed run.
+3. Test in QEMU/VirtualBox configured for legacy BIOS before any hardware experiments.
 
-## What works in this first milestone
-- Boots a freestanding kernel directly (not a Linux kernel)
-- Minimal monochrome VGA text interface
-- GRUB boot menu and bootable ISO output
+## Implemented prototype
+- GRUB boot menu
+- NoEyeOS text-mode desktop menu
+- Keyboard navigation using a polling PS/2 keyboard controller
+- Terminal, file-manager, browser, settings, about and power-menu mockup panels
+- Freestanding C kernel with no Linux kernel or Linux userspace
 
-## Not implemented yet
-This is not yet a full desktop OS. There is no real web browser, GUI window manager, keyboard shell, filesystem, networking, Wi-Fi, or Bluetooth stack. Those require substantial additional kernel, driver, protocol and application work. A normal modern browser is especially large; a tiny hobby kernel cannot simply include Firefox/Chromium without first building the required OS services and graphics/networking APIs.
-
-The installer button is intentionally not included yet: a safe permanent installer needs disk drivers, partitioning, filesystem support and a recovery path. Do not install this prototype to a real disk. Test only in QEMU/another virtual machine.
-
-Target: legacy BIOS/GRUB-compatible x86 PC or emulator. This initial kernel is 32-bit and is not for Android/ARM devices.
+## Not implemented
+The panels are early UI placeholders, not full applications. There is no real graphical desktop, real disk filesystem, web browser, TCP/IP networking, Wi-Fi/Bluetooth drivers, or safe permanent installer. Do not install to a real disk. This is a 32-bit x86 hobby OS prototype; it is not for Android/ARM devices.
