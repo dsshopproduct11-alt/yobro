@@ -25,6 +25,7 @@ jobs:
           mkdir -p noeyeos-desktop/config/package-lists
           mkdir -p noeyeos-desktop/config/hooks/live
           cd noeyeos-desktop
+          chmod +x config/hooks/live/*.hook.chroot
           lb config \
             --distribution trixie \
             --architectures amd64 \
