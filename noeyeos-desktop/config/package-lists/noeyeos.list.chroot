@@ -1,0 +1,24 @@
+# NoEyeOS desktop: real Linux desktop, browser, networking and Bluetooth tools.
+task-xfce-desktop
+lightdm
+xfce4-terminal
+thunar
+firefox-esr
+network-manager
+network-manager-gnome
+wpasupplicant
+bluez
+blueman
+rfkill
+firmware-linux
+firmware-linux-free
+firmware-linux-nonfree
+firmware-iwlwifi
+firmware-realtek
+firmware-atheros
+firmware-brcm80211
+calamares
+sudo
+xorg
+xserver-xorg-video-all
+fonts-dejavu
